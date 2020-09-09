@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- saved from url=(0134)https://prium.github.io/phoenix/v1.11.0/index.html?theme-control=true&horizontal-navbar-shape=slim&horizontal-navbar-appearance=darker -->
+<html>
+    <title>QR_Generate</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+  <body>
+    <div class="row" style="margin-top: 50px;">
+      <div class="col-7" style="margin: auto">
+        <input class="col-5" id="randId" placeholder="id"/>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#QRModal" onclick="displayQRWindow()">GenearteQR</button>
+    </div>
+    </div>
+    <!----modal -->
+    <div class="modal" id="QRModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+        
+          <!-- Modal Header -->
+          <div class="modal-header">
+            <h4 class="modal-title text-center">QR Code</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          
+          <!-- Modal body -->
+          <div class="modal-body" id="qr_modal_body">
+            <div class="row">
+              <div id="qrcode" style="width:200px; height:200px; margin-top:15px; background-color: rgb(255, 255, 255); margin: auto"></div>
+            </div>
+            <a id="detail_url" target="_blank"></a>
+          </div> 
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 100px">
+      <div class="col-8"style="margin: auto;">
+        <form action="/" method="post">
+          <input type="text" name="id" placeholder="ID">
+          <input type="text" name="name" placeholder="Name">
+          <input type="text" name="email" placeholder="Email">
+          <input type="text" name="link" placeholder="Link">
+          <input type="text" name="photo" placeholder="Photo">
+          <button type="submit" class="btn btn-primary" >Add</button> 
+        </form>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-8" style="margin:auto">         
+            <table class="table fs--1 mb-0 border-top border-200" style="margin: auto;">
+                <thead>
+                  <tr>
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:10;">No</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:200px;">ID</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:150px;">Name</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:100px;">Email</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="width:350px;">Link</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:100px;">Photo</th>                    
+                    <th class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:200px;">Action</th>	  
+                    
+                  </tr>
+                </thead>
+                <tbody class="list" id="table-latest-review-body"><tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                  <% for(var i = 0; i < Users.length; i++){ %>
+                      <tr>
+                          <td class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:10;"><%= i+1 %></td>
+                          <td class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:200px;"><%= Users[i].id %></td>
+                          <td class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:150px;"><%= Users[i].name %></td>
+                          <td class="sort align-middle text-center" scope="col" data-sort="customer" style="min-width:100px;"><%= Users[i].email %></td>
+                          <td class="sort align-middle text-center" scope="col" data-sort="customer" style="width:350px;">
+                            <div >
+                              <input type="hidden" name="id" value="<%= Users[i].id %>">
+                              <input id="link_<%= Users[i].id %>" type="text" style="width:250px;" name="link" value="<%= Users[i].link %>">
+                              <button class="btn btn-primary" onclick="saveLink('<%= Users[i].id %>')">Save</button>
+                            </div>
+                          </td>
+                          <td class="sort align-middle" scope="col" data-sort="customer" style="width: 100px; height: 100px;">
+				<img id="img_<%= Users[i].id %>" src="<%= Users[i].photo %>"/>
+			  </td>
+                          <td class="sort align-middle" scope="col" data-sort="customer" style="min-width:200px;"> 
+                              <div class="text-center">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#QRModal" onclick="displayQRWindow('<%= Users[i].id %>')">QR</button>
+                                <a class="btn btn-primary" href="/detail?id=<%= Users[i].id %>" target="_blank">Detail</a>
+                              </div>
+                          </td>	
+                      </tr>
+                  <% } %>
+                </tbody>
+              </table>
+        </div>
+    </div> 
+
+  </body>
+  <script type="text/JavaScript"> 
+
+    var detail_url;
+
+    function displayQRWindow(id) {
+
+      var div = document.getElementById('qrcode');
+      while(div.firstChild){
+        div.removeChild(div.firstChild);
+      }
+      if (id == undefined) id = document.getElementById("randId").value;
+
+      let url = window.location.href + "detail?id=" + id;       
+      var alink = document.getElementById('detail_url');
+      alink.href = url;
+      alink.innerHTML = url;
+
+      // let imgPhoto = document.getElementById("img_" + id);
+      // let imgSrc = imgPhoto.src;
+
+      //qrCodeStyleing
+
+      qrCode = new QRCodeStyling({
+        width: 200,
+        height: 200,
+        type: "svg",
+        data: url,
+        image: "",
+        dotsOptions: {
+            color: "#4267b2",
+            type: "rounded"
+        },
+        backgroundOptions: {
+            color: "#e9ebee",
+        },
+        imageOptions: {
+            crossOrigin: "anonymous",
+            margin: 0
+        }
+      });
+
+      qrCode.append(document.getElementById("qrcode"));
+    }  
+    
+
+    //savelink
+    function saveLink(id){
+      let linkid = "link_" + id;
+      $.ajax({
+        type: "POST",
+        url: "/savelink",
+        data: {
+          link: document.getElementById(linkid).value,
+          id: id
+        },
+        success: function(data) {
+          alert("Success to save link.");
+        }
+      });
+    }
+
+  </script>  
+
+</html>
